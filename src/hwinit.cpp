@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 #include <libopencm3/cm3/common.h>
 #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/cm3/scb.h>
@@ -250,7 +251,8 @@ void tim3_setup()
     // General purpose pwm output. Push/pull driven to +12v/gnd. Timer 3 Chan 2 PA7.
     // General purpose pwm output. Push/pull driven to +12v/gnd. Timer 3 Chan 1 PA6.
     ////////////////////////////////////////////////////////////////////////
-    bool CPspoofPres,GS450hOil = 0;
+    bool CPspoofPres = 0;
+    bool GS450hOil = 0;
 ///PWM3
     if (Param::GetInt(Param::PWM3Func) == IOMatrix::PWM_TIM3)
     {

@@ -20,6 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 #include <stdint.h>
 #include <libopencm3/stm32/usart.h>
 #include <libopencm3/stm32/timer.h>
@@ -121,7 +122,7 @@ static CanHardware* canInterface[3];
 static CanMap* canMap;
 static ChargeModes targetCharger;
 static ChargeInterfaces targetChgint;
-static uint8_t ChgSet;
+static uint8_t ChgSet;  // Temp variable storing Param::Chgctrl. 0=enable, 1=disable, 2=timer.
 static bool RunChg;
 static uint8_t ChgHrs_tmp;
 static uint8_t ChgMins_tmp;
@@ -248,13 +249,11 @@ static void Ms200Task(void)
     if(Param::GetInt(Param::GPA1Func) == IOMatrix::PILOT_PROX || Param::GetInt(Param::GPA2Func) == IOMatrix::PILOT_PROX )
     {
         int ppThresh = Param::GetInt(Param::ppthresh);
-
         int ppValue = IOMatrix::GetAnaloguePin(IOMatrix::PILOT_PROX)->Get();
         Param::SetInt(Param::PPVal, ppValue);
 
-
-        //if PP is less than threshold and currently disabled and not already finished
-        if (ppValue < ppThresh && ChgSet==1 && !ChgLck)
+        // If PP is at or below threshold and currently disabled and not already finished
+        if (ppValue <= ppThresh && ChgSet==1 && !ChgLck)
         {
             RunChg=true;
         }
@@ -554,7 +553,6 @@ static void Ms10Task(void)
 
     if(Param::GetInt(Param::potnom) < Param::GetInt(Param::RegenBrakeLight))
     {
-        Param::SetInt(Param::BrkVacVal,torquePercent*requestedDirection*-1);
         //enable Brake Light Ouput
         IOMatrix::GetPin(IOMatrix::BRAKELIGHT)->Set();
     }
@@ -577,7 +575,14 @@ static void Ms10Task(void)
     selectedVehicle->Task10Ms();
     selectedDCDC->Task10Ms();
     selectedShifter->Task10Ms();
-    if(opmode==MOD_CHARGE) selectedCharger->Task10Ms();
+    if(opmode==MOD_CHARGE)
+    {
+        selectedCharger->Task10Ms();
+    }
+    else if (Param::GetInt(Param::chargemodes) == ChargeModes::Leaf_PDM)
+    {
+        selectedCharger->Task10Ms();
+    }
     if(opmode==MOD_RUN) Param::SetInt(Param::canctr, (Param::GetInt(Param::canctr) + 1) & 0xF);//Update the OI can counter in RUN mode only
 
     //////////////////////////////////////////////////
