@@ -103,6 +103,7 @@
 #include "kangoobms.h"
 #include "OutlanderCanHeater.h"
 #include "OutlanderHeartBeat.h"
+#include "MAZDA_RX8.h"
 
 #define PRECHARGE_TIMEOUT 5  //5s
 
@@ -148,6 +149,7 @@ static BMW_E65 e65Vehicle;
 static BMW_E39 e39Vehicle;
 static Can_VAG vagVehicle;
 static SubaruVehicle subaruVehicle;
+static MAZDA_RX8 rx8Vehicle;
 static GS450HClass gs450Inverter;
 static LeafINV leafInv;
 static NissanPDM chargerPDM;
@@ -804,6 +806,9 @@ static void UpdateVehicle()
         break;
     case vehicles::Classic:
         selectedVehicle = &classVehicle;
+        break;
+    case vehicles::vMAZDA_RX8:
+        selectedVehicle = &rx8Vehicle;
         break;
     }
     //This will call SetCanFilters() via the Clear Callback
