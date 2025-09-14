@@ -294,7 +294,6 @@ float ProcessUdc(int motorSpeed)
         if(Param::GetInt(Param::opmode) == MOD_OFF)
         {
             udc = 0; //ensure we reset udc during off state to keep precharge working
-            Param::SetFloat(Param::udc, udc);
         }
     }
     else if (Param::GetInt(Param::ShuntType) == 1)//ISA shunt
@@ -395,6 +394,7 @@ float ProcessThrottle(int speed)
 
     finalSpnt = utils::GetUserThrottleCommand();
 
+    /* No Cruise allowed
     if (Param::Get(Param::cruisespeed) > 0)
     {
         Throttle::brkcruise = 0;
@@ -404,9 +404,8 @@ float ProcessThrottle(int speed)
         float cruiseThrottle = Throttle::CalcCruiseSpeed(ABS(Param::GetInt(Param::speed)));
         finalSpnt = MAX(cruiseThrottle, finalSpnt);
     }
-
-    finalSpnt = Throttle::RampThrottle(finalSpnt);
-
+*/
+    //finalSpnt = Throttle::RampThrottle(finalSpnt); //OLD - Throttle ramping reorganised in V2.30A
 
     Throttle::UdcLimitCommand(finalSpnt,Param::GetFloat(Param::udc));
     Throttle::IdcLimitCommand(finalSpnt, ABS(Param::GetFloat(Param::idc)));
@@ -421,6 +420,8 @@ float ProcessThrottle(int speed)
     {
         ErrorMessage::Post(ERR_TMPMMAX);
     }
+
+    finalSpnt = Throttle::RampThrottle(finalSpnt); //Move ramping as last step -intro V2.30A
 
     // make sure the torque percentage is NEVER out of range
     if (finalSpnt < -100.0f)

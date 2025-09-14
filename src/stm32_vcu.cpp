@@ -141,7 +141,6 @@ hours=0, minutes=0, seconds=0,
 alarm=0;			// != 0 when alarm is pending
 
 static uint16_t rlyDly=25;
-static uint16_t prechargeMinTime=100;
 
 // Instantiate Classes
 static BMW_E31 e31Vehicle;
@@ -649,8 +648,7 @@ static void Ms10Task(void)
         IOMatrix::GetPin(IOMatrix::COOLANTPUMP)->Set();
         if(rlyDly!=0) rlyDly--;//here we are going to pause before energising precharge to prevent too many contactors pulling amps at the same time
         if(rlyDly==0) DigIo::prec_out.Set();//commence precharge
-        if(prechargeMinTime!=0) prechargeMinTime--;//1 second minimum precharge time
-        if ((prechargeMinTime == 0 && stt & (STAT_POTPRESSED | STAT_UDCBELOWUDCSW | STAT_UDCLIM)) == STAT_NONE)
+        if ((stt & (STAT_POTPRESSED | STAT_UDCBELOWUDCSW | STAT_UDCLIM)) == STAT_NONE)
         {
             if(StartSig)
             {
@@ -696,7 +694,7 @@ static void Ms10Task(void)
         if(!chargeMode)
         {
             opmode = MOD_OFF;
-            rlyDly=1000;//Recharge sequence timer for delayed shutdown
+            rlyDly=250;//Recharge sequence timer for delayed shutdown
         }
         Param::SetInt(Param::opmode, opmode);
         break;
@@ -713,7 +711,7 @@ static void Ms10Task(void)
         if(!selectedVehicle->Ready())
         {
             opmode = MOD_OFF;
-            rlyDly=1000;//Recharge sequence timer for delayed shutdown
+            rlyDly=250;//Recharge sequence timer for delayed shutdown
         }
         Param::SetInt(Param::opmode, opmode);
         break;
